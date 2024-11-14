@@ -3,6 +3,7 @@ package com.diemendozac.budabingo.services;
 import com.diemendozac.budabingo.controllers.dto.request.LoginRequest;
 import com.diemendozac.budabingo.controllers.dto.request.UserEntityRegisterRequest;
 import com.diemendozac.budabingo.controllers.dto.response.AuthenticationResponse;
+import com.diemendozac.budabingo.entities.BingoCard;
 import com.diemendozac.budabingo.entities.UserEntity;
 import com.diemendozac.budabingo.security.jwt.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,6 @@ public class AuthService {
 	private final UserEntityService userEntityService;
 	private final JwtUtils jwtUtils;
 	private final AuthenticationManager authenticationManager;
-	private final PasswordEncoder passwordEncoder;
 
 	public AuthenticationResponse login(LoginRequest request) {
 		String username = request.getUsername();
@@ -36,7 +36,7 @@ public class AuthService {
 
 		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-		String jwtToken = jwtUtils.generateToken(Map.of(USER_ID, user.getUserId()), user);
+		String jwtToken = jwtUtils.generateToken(Map.of(USER_ID, user.getId()), user);
 		return AuthenticationResponse.builder().token(jwtToken).build();
 	}
 
@@ -45,14 +45,12 @@ public class AuthService {
 		UserEntity user =
 						UserEntity.builder()
 										.username(request.getUsername())
-										.email(request.getEmail())
-										.password(passwordEncoder.encode(request.getPassword()))
-										.name(request.getName())
+										.card(new BingoCard())
 										.build();
 
 		UserEntity savedUser = userEntityService.save(user);
 
-		String jwtToken = jwtUtils.generateToken(Map.of(USER_ID, savedUser.getUserId()), user);
+		String jwtToken = jwtUtils.generateToken(Map.of(USER_ID, savedUser.getId()), user);
 		return AuthenticationResponse.builder().token(jwtToken).build();
 	}
 }

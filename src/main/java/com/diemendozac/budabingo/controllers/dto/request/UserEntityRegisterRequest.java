@@ -14,15 +14,8 @@ public class UserEntityRegisterRequest {
 
 	@NotBlank
 	@NotNull
-	private String email;
-
-	@NotBlank
-	@NotNull
 	@Length(min = 8)
 	private String password;
-
-	@NotBlank @NotNull
-	private String name;
 	@NotNull @NotBlank
 	private String username;
 }

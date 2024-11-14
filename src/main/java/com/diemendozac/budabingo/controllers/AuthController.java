@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -38,7 +38,6 @@ public class AuthController {
 	@PostMapping("/register")
 	public ResponseEntity<AuthenticationResponse> registerUser(
 					@RequestBody UserEntityRegisterRequest request) {
-		if (EmailValidator.isValid(request.getEmail())) return ResponseEntity.badRequest().build();
 		return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
 	}
 }

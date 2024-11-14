@@ -1,10 +1,11 @@
 package com.diemendozac.budabingo.entities;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.UUID;
 
 @Entity(name = "users")
 @Data
@@ -22,18 +24,24 @@ import java.util.Collection;
 public class UserEntity implements UserDetails {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	private String userId;
-	@Column(unique = true)
-	private String email;
-	@Column(unique = true)
+	@GeneratedValue
+	private UUID id;
+
 	private String username;
-	private String password;
-	private String name;
+	private boolean hasWon = false;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "card_id", referencedColumnName = "id")
+	private BingoCard card;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return null;
+	}
+
+	@Override
+	public String getPassword() {
+		return getPassword();
 	}
 
 	@Override
