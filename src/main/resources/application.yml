@@ -1,0 +1,15 @@
+
+spring:
+  application:
+    name: buda-bingo
+  datasource:
+    url: ${BUDABINGO_LOCAL_DB_URL}
+    username: ${BUDABINGO_LOCAL_DB_USERNAME}
+    password: ${BUDABINGO_LOCAL_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: none
