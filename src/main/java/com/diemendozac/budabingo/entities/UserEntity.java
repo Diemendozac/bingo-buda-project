@@ -1,11 +1,14 @@
 package com.diemendozac.budabingo.entities;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,11 +27,15 @@ import java.util.UUID;
 public class UserEntity implements UserDetails {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.UUID)
+	@Column(unique = true, nullable = false)
 	private UUID id;
 
+	@NotNull
+	@Column(unique = true)
 	private String username;
-	private boolean hasWon = false;
+	private String password;
+	private boolean hasWon;
 
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "card_id", referencedColumnName = "id")
@@ -41,7 +48,7 @@ public class UserEntity implements UserDetails {
 
 	@Override
 	public String getPassword() {
-		return getPassword();
+		return this.password;
 	}
 
 	@Override

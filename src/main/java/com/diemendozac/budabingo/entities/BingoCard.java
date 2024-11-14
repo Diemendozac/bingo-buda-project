@@ -1,14 +1,15 @@
 package com.diemendozac.budabingo.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Getter;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -18,20 +19,18 @@ import java.util.stream.IntStream;
 public class BingoCard {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.UUID)
+	@Column(unique = true, nullable = false)
 	private UUID id;
 
 	@ElementCollection
-	private Map<String, Set<Integer>> cardNumbers;
-
-	@ElementCollection
-	private Set<Integer> markedNumbers = new HashSet<>();
+	private Map<String, ArrayList<Integer>> cardNumbers;
 
 	public BingoCard() {
 		this.cardNumbers = generateCard();
 	}
 
-	private Map<String, Set<Integer>> generateCard() {
+	private Map<String, ArrayList<Integer>> generateCard() {
 		return Map.of(
 						"B", generateUniqueNumbers(1, 15, 5),
 						"I", generateUniqueNumbers(16, 30, 5),
@@ -41,17 +40,11 @@ public class BingoCard {
 		);
 	}
 
-	private Set<Integer> generateUniqueNumbers(int min, int max, int count) {
-		return IntStream.generate(() -> min + (int) (Math.random() * (max - min + 1)))
+	private ArrayList<Integer> generateUniqueNumbers(int min, int max, int count) {
+		return (ArrayList<Integer>) IntStream.generate(() -> min + (int) (Math.random() * (max - min + 1)))
 						.distinct()
 						.limit(count)
 						.boxed()
-						.collect(Collectors.toSet());
-	}
-
-	public void markNumber(int number) {
-		if (cardNumbers.values().stream().anyMatch(set -> set.contains(number))) {
-			markedNumbers.add(number);
-		}
+						.collect(Collectors.toList());
 	}
 }

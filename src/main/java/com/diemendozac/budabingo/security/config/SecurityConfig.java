@@ -42,10 +42,10 @@ public class SecurityConfig {
 										authorize ->
 														authorize
 																		.requestMatchers(
-																						"/auth/**")
+																						"api/auth/**")
 																		.permitAll()
 																		.anyRequest()
-																		.permitAll()) //Cuidado, cambiar esto
+																		.authenticated())
 						.sessionManagement(
 										session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 						.authenticationProvider(authenticationProvider())

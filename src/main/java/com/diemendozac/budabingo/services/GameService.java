@@ -10,13 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 
 
 @Service
@@ -26,32 +25,35 @@ public class GameService {
 	private GameSessionRepository gameSessionRepository;
 
 	@Autowired
-	private UserEntityRepository playerRepository;
+	private UserEntityRepository userEntityRepository;
 
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;
 
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-	public GameSession createGameSession(UUID creatorId) {
-		GameSession gameSession = new GameSession(creatorId);
+	public GameSession createGameSession(String username) {
+		UserEntity user = userEntityRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+		GameSession gameSession = GameSession.builder().creatorId(user.getId()).players(new ArrayList<>()).build();
+		gameSession.addPlayer(user);
 		gameSessionRepository.save(gameSession);
 		return gameSession;
 	}
 
-	public GameSession connectToGame(UUID gameId, UserEntity player) {
-		GameSession gameSession = gameSessionRepository.findById(String.valueOf(gameId))
+	public GameSession connectToGame(String gameId, UserEntity player) {
+		GameSession gameSession = gameSessionRepository.findById(UUID.fromString(gameId))
 						.orElseThrow(() -> new RuntimeException("Game not found"));
 		gameSession.addPlayer(player);
-		playerRepository.save(player);
+		userEntityRepository.save(player);
 		gameSessionRepository.save(gameSession);
 		return gameSession;
 	}
 
-	public void startGame(UUID gameId, UUID creatorId) {
-		GameSession gameSession = gameSessionRepository.findById(String.valueOf(gameId))
+	public void startGame(String gameId, String username) {
+		UserEntity userEntity = userEntityRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+		GameSession gameSession = gameSessionRepository.findById(UUID.fromString(gameId))
 						.orElseThrow(() -> new RuntimeException("Game not found"));
-		if (gameSession.canStart() && gameSession.getCreatorId().equals(creatorId)) {
+		if (gameSession.canStart() && gameSession.getCreatorId().equals(userEntity.getId())) {
 			gameSession.startGame();
 			gameSessionRepository.save(gameSession);
 
@@ -74,10 +76,9 @@ public class GameService {
 		messagingTemplate.convertAndSend("/topic/game/" + gameSession.getId(), number);
 	}
 
-	public boolean checkBingo(UUID gameId, BingoCard card) {
-		GameSession gameSession = gameSessionRepository.findById(String.valueOf(gameId))
+	public boolean checkBingo(String gameId, BingoCard card) {
+		GameSession gameSession = gameSessionRepository.findById(UUID.fromString(gameId))
 						.orElseThrow(() -> new RuntimeException("Game not found"));
-		Set<Integer> markedNumbers = card.getMarkedNumbers();
 
 		boolean isWinner = ValidationUtils.isWinningCombination(card, gameSession.getDrawnNumbers());
 

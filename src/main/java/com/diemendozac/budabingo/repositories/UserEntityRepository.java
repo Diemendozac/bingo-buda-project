@@ -10,5 +10,5 @@ import java.util.UUID;
 @Repository
 public interface UserEntityRepository extends CrudRepository<UserEntity, String> {
 	Optional<UserEntity> findByUsername(String username);
-	Optional<UserEntity> findById(UUID username);
+	Optional<UserEntity> findById(String username);
 }

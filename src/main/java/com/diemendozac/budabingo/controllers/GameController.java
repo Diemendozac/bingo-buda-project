@@ -5,10 +5,11 @@ import com.diemendozac.budabingo.entities.UserEntity;
 import com.diemendozac.budabingo.services.UserEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.diemendozac.budabingo.services.GameService;
@@ -26,24 +27,25 @@ public class GameController {
 	private UserEntityService userEntityService;
 
 	// Crear una partida
-	@PostMapping("/create")
-	public ResponseEntity<UUID> createGame(@RequestParam UUID creatorId) {
-		GameSession gameSession = gameService.createGameSession(creatorId);
+	@GetMapping("/create")
+	public ResponseEntity<UUID> createGame(@RequestAttribute String username) {
+		GameSession gameSession = gameService.createGameSession(username);
 		return ResponseEntity.ok(gameSession.getId());
 	}
 
 	// Unirse a una partida con el ID
-	@PostMapping("/{gameId}/join")
-	public ResponseEntity<String> joinGame(@PathVariable UUID gameId, @RequestParam UUID playerId) {
-		Optional<UserEntity> player = userEntityService.findById(String.valueOf(playerId));
+	@GetMapping("/{gameId}/join")
+	public ResponseEntity<String> joinGame(@PathVariable String gameId, @RequestAttribute String username) {
+
+		Optional<UserEntity> player = userEntityService.findByUsername(username);
 		if (player.isEmpty()) return ResponseEntity.badRequest().build();
 		gameService.connectToGame(gameId, player.get());
 		return ResponseEntity.ok("Connected to game " + gameId);
 	}
 
-	@PostMapping("/{gameId}/start")
-	public ResponseEntity<String> startGame(@PathVariable UUID gameId, @RequestParam UUID creatorId) {
-		gameService.startGame(gameId, creatorId);
+	@GetMapping("/{gameId}/start")
+	public ResponseEntity<String> startGame(@PathVariable String gameId, @RequestAttribute String username) {
+		gameService.startGame(gameId, username);
 		return ResponseEntity.ok("Game " + gameId + " started!");
 	}
 }

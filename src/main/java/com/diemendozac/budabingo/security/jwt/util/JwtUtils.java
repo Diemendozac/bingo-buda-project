@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -44,9 +43,6 @@ public class JwtUtils {
 		return claimsFunction.apply(claims);
 	}
 
-	public String generateToken(UserDetails userDetails) {
-		return generateToken(new HashMap<>(), userDetails);
-	}
 
 	public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
 		return Jwts.builder()
@@ -72,9 +68,5 @@ public class JwtUtils {
 		return extractClaim(token, Claims::getSubject);
 	}
 
-	public String getUserId(String token) {
-		Claims claims = extractAllClaims(token);
-		return claims.get("id", String.class);
-	}
 }
 

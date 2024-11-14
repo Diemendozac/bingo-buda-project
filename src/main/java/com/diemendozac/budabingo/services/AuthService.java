@@ -22,6 +22,7 @@ public class AuthService {
 	private final UserEntityService userEntityService;
 	private final JwtUtils jwtUtils;
 	private final AuthenticationManager authenticationManager;
+	private final PasswordEncoder passwordEncoder;
 
 	public AuthenticationResponse login(LoginRequest request) {
 		String username = request.getUsername();
@@ -45,6 +46,7 @@ public class AuthService {
 		UserEntity user =
 						UserEntity.builder()
 										.username(request.getUsername())
+										.password(passwordEncoder.encode(request.getPassword()))
 										.card(new BingoCard())
 										.build();
 
